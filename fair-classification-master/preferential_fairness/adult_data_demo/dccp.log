@@ -1,0 +1,6 @@
+iteration=1, cost value=0.16412, tau=0.50000, solver status=optimal
+iteration=2, cost value=0.16412, tau=0.60000, solver status=optimal
+iteration=1, cost value=0.39752, tau=0.50000, solver status=optimal
+iteration=2, cost value=0.39752, tau=0.60000, solver status=optimal
+iteration=1, cost value=0.37864, tau=0.50000, solver status=optimal
+iteration=2, cost value=0.37864, tau=0.60000, solver status=optimal
