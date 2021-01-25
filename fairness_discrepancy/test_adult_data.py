@@ -1,4 +1,6 @@
-from prep_data import *
+from prep_adult_data import *
+import utils as ut
+import loss_funcs as lf
 
 def test_adult_data():
 	
@@ -14,14 +16,8 @@ def test_adult_data():
 	train_fold_size = 0.7
 	x_train, y_train, x_control_train, x_test, y_test, x_control_test = ut.split_into_train_test(X, y, x_control, train_fold_size)
 
-
-
-
-	apply_fairness_constraints = None
-	apply_accuracy_constraint = None
 	sep_constraint = None
 
-	#loss_function = lf._logistic_loss
 	loss_function = lf.discrepancy_loss
 	sensitive_attrs = ["sex"]
 	sensitive_attrs_to_cov_thresh = {}
