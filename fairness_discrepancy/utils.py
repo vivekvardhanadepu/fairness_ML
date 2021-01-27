@@ -1,4 +1,5 @@
 import numpy as np
+from random import seed
 from scipy.optimize import minimize, optimize
 
 SEED = 1122334455
@@ -37,6 +38,7 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs):
     K = np.dot
     n = x.shape[1]
     f_args=(x, y, x_control, alpha, b, K, sensitive_attrs)
+    constraints = []
     constraints.append(LinearConstraint(y, lb=0, ub=0))
 
     c = minimize(fun = loss_function,
@@ -135,3 +137,50 @@ def split_into_train_test(x_all, y_all, x_control_all, train_fold_size):
         x_control_all_test[k] = x_control_all[k][split_point:]
 
     return x_all_train, y_all_train, x_control_all_train, x_all_test, y_all_test, x_control_all_test
+
+def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y_test_predicted):
+
+
+    """
+    returns the train/test accuracy of the model
+    we either pass the model (w)
+    else we pass y_predicted
+    """
+    if model is not None and y_test_predicted is not None:
+        print("Either the model (w) or the predicted labels should be None")
+        raise Exception("Either the model (w) or the predicted labels should be None")
+    
+    K = np.dot
+    n = x_train.shape[1]
+    m = x_test.shape[1]
+    # subtract b
+    if model is not None:
+        y_train_predicted = []
+        y_test_predicted = []
+
+        for j in range(n):
+            temp=0.0
+            for i in range(n):
+                temp+= model[i]*y_train[i]*K(x_train[j], x_train[i])
+            # temp-=b
+            y_train_predicted.append(np.sign(temp))
+
+        for j in range(m):
+            temp=0.0
+            for i in range(n):
+                temp+= model[i]*y_train[i]*K(x_test[j], x_train[i])
+            # temp-=b
+            y_test_predicted.append(np.sign(temp))
+
+        y_test_predicted = np.array(y_test_predicted)
+        y_train_predicted = np.array(y_train_predicted)
+
+    def get_accuracy(y, Y_predicted):
+        correct_answers = (Y_predicted == y).astype(int) # will have 1 when the prediction and the actual label match
+        accuracy = float(sum(correct_answers)) / float(len(correct_answers))
+        return accuracy, sum(correct_answers)
+
+    train_score, correct_answers_train = get_accuracy(y_train, y_train_predicted)
+    test_score, correct_answers_test = get_accuracy(y_test, y_test_predicted)
+
+    return train_score, test_score, correct_answers_train, correct_answers_test

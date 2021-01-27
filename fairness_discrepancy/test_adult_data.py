@@ -1,6 +1,6 @@
-from prep_adult_data import *
 import utils as ut
 import loss_funcs as lf
+from prep_adult_data import *
 
 def test_adult_data():
 	

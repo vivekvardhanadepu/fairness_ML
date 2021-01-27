@@ -4,8 +4,8 @@ def discrepancy_loss(c, x, y, x_control, alpha, b, K, sensitive_attrs):
 	svm_loss = 0.0
 	coloring_loss = 0.0
 	# assert no of samples
-	for i in range(x.shape[0]):
-		for i in range(y.shape[0]):
+	for i in range(x.shape[1]):
+		for i in range(y.shape[1]):
 			svm_loss += 0.5*y[i]*y[j]*c[i]*c[j]*K(x[i],x[j])
 	svm_loss -= c.sum()
 
@@ -19,17 +19,17 @@ def discrepancy_loss(c, x, y, x_control, alpha, b, K, sensitive_attrs):
 			male_loss  = 0.0
 			female_loss = 0.0
 
-			for i in range(male_x.shape[0]):
+			for i in range(male_x.shape[1]):
 				temp=0.0
-				for j in range(x.shape[0]):
-					temp+= c[j]*y[j]*K(x[i], male_x[i])
+				for j in range(x.shape[1]):
+					temp+= c[j]*y[j]*K(x[j], male_x[i])
 				temp-=b
 				male_loss += np.tanh(temp)
 
-			for i in range(female_x.shape[0]):
+			for i in range(female_x.shape[1]):
 				temp=0.0
-				for j in range(x.shape[0]):
-					temp+= c[j]*y[j]*K(x[i], female_x[i])
+				for j in range(x.shape[1]):
+					temp+= c[j]*y[j]*K(x[j], female_x[i])
 				temp-=b
 				female_loss += np.tanh(temp1)
 
