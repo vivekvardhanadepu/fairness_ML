@@ -1,4 +1,61 @@
 import numpy as np
+from scipy.optimize import minimize, optimize
+
+SEED = 1122334455
+seed(SEED) # set the random seed so that the random permutations can be reproduced again
+np.random.seed(SEED)
+
+def train_model(x, y, x_control, loss_function, sensitive_attrs):
+
+    """
+
+    Function that trains the model with fairness constraints.
+    Example usage in: "synthetic_data_demo/decision_boundary_demo.py"
+
+    ----
+
+    Inputs:
+
+    X: (n) x (d+1) numpy array -- n = number of examples, d = number of features, one feature is the intercept
+    y: 1-d numpy array (n entries)
+    x_control: dictionary of the type {"s": [...]}, key "s" is the sensitive feature name, and the value is a 1-d list with n elements holding the sensitive feature values
+    loss_function: the loss function that we want to optimize -- for now we have implementation of logistic loss, but other functions like hinge loss can also be added
+    sensitive_attrs: ["s1", "s2", ...], list of sensitive features for which to apply fairness constraint, all of these sensitive features should have a corresponding array in x_control
+
+    ----
+
+    Outputs:
+
+    c: the learned weight vector for the classifier
+
+    """
+
+    max_iter = 100000 # maximum number of iterations for the minimization algorithm      
+    alpha = .5
+    b = 1
+    l = 1
+    K = np.dot
+    n = x.shape[1]
+    f_args=(x, y, x_control, alpha, b, K, sensitive_attrs)
+    constraints.append(LinearConstraint(y, lb=0, ub=0))
+
+    c = minimize(fun = loss_function,
+        x0 = np.random.rand(n,),
+        args = f_args,
+        method = 'SLSQP',
+        options = {"maxiter":max_iter},
+        bounds = [(0, 1/(2*n*l)) for i in range(n)]
+        constraints = constraints
+        )
+
+    try:
+        assert(c.success == True)
+    except:
+        print("Optimization problem did not converge.. Check the solution returned by the optimizer.")
+        print("Returned solution is:")
+        print(c)
+
+    return c.x
 
 def compute_p_rule(x_control, class_labels):
 

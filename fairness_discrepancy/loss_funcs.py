@@ -1,9 +1,9 @@
 import numpy as np
 
-def discrepancy_loss(x, y, c, alpha, b, K, sensitive_attrs):
+def discrepancy_loss(c, x, y, x_control, alpha, b, K, sensitive_attrs):
 	svm_loss = 0.0
 	coloring_loss = 0.0
-	#assert no of samples
+	# assert no of samples
 	for i in range(x.shape[0]):
 		for i in range(y.shape[0]):
 			svm_loss += 0.5*y[i]*y[j]*c[i]*c[j]*K(x[i],x[j])
@@ -11,7 +11,7 @@ def discrepancy_loss(x, y, c, alpha, b, K, sensitive_attrs):
 
 	for attr in sensitive_attrs:
 		if(attr=="sex"):
-			cond = x[attr] == "Male"
+			cond = x_control[attr] == 1
 			male_x = x[cond]
 			male_y = y[cond]
 			female_x = x[~cond]
