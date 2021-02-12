@@ -12,7 +12,6 @@ def test_adult_data():
 
 
 	""" Split the data into train and test """
-	X = ut.add_intercept(X) # add intercept to X before applying the linear classifier
 	train_fold_size = 0.7
 	x_train, y_train, x_control_train, x_test, y_test, x_control_test = ut.split_into_train_test(X, y, x_control, train_fold_size)
 
@@ -20,19 +19,24 @@ def test_adult_data():
 	sensitive_attrs = ["sex"]
 
 	def train_test_classifier():
-		w = ut.train_model(x_train, y_train, x_control_train, loss_function, sensitive_attrs)
-		train_score, test_score, correct_answers_train, correct_answers_test = ut.check_accuracy(w, x_train, y_train, x_test, y_test, None, None)
-		distances_boundary_test = (np.dot(x_test, w)).tolist()
-		all_class_labels_assigned_test = np.sign(distances_boundary_test)
-		correlation_dict_test = ut.get_correlations(None, None, all_class_labels_assigned_test, x_control_test, sensitive_attrs)
-		cov_dict_test = ut.print_covariance_sensitive_attrs(None, x_test, distances_boundary_test, x_control_test, sensitive_attrs)
-		p_rule = ut.print_classifier_fairness_stats([test_score], [correlation_dict_test], [cov_dict_test], sensitive_attrs[0])	
-		return w, p_rule, test_score
+		final_c, Cs, losses = ut.train_model(x_train, y_train, x_control_train, loss_function, sensitive_attrs)
+		y_train_predicted, y_test_predicted = ut.predict(final_c.x, x_train, y_train, x_test)
+		train_score, test_score, correct_answers_train, correct_answers_test = ut.check_accuracy(None, x_train, y_train, x_test, y_test, y_train_predicted, y_test_predicted)
+		print("Train data:")
+		print("------------")
+		print("Train accuracy : ", train_score)
+		p_rule_train = ut.compute_p_rule(x_control_train["sex"], y_train_predicted)
+		print()
+		print("Test data: ")
+		print("------------")
+		print("Test accuracy : ", test_score)
+		p_rule_test = ut.compute_p_rule(x_control_test["sex"], y_test_predicted)
+		print
+		print(losses)
+		# return w, p_rule_train, p_rule_test
 
 	""" Classify the data while optimizing for accuracy """
-	w_uncons, p_uncons, acc_uncons = train_test_classifier()
-
-	return
+	train_test_classifier()
 
 def main():
 	test_adult_data()

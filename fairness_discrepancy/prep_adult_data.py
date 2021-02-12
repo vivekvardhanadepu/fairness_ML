@@ -133,15 +133,14 @@ def load_adult_data(load_data_size=None):
 
         else:            
             attr_vals, index_dict = ut.get_one_hot_encoding(attr_vals)
-            for inner_col in attr_vals.T:                
+            for inner_col in attr_vals.T:              
                 X.append(inner_col) 
-
 
     # convert to numpy arrays for easy handling
     X = np.array(X, dtype=float).T
     y = np.array(y, dtype = float)
     for k, v in x_control.items(): x_control[k] = np.array(v, dtype=float)
-        
+
     # shuffle the data
     perm = list(range(0,len(y))) # shuffle the data before creating each fold
     shuffle(perm)

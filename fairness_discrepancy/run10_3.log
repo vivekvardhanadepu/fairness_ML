@@ -1,0 +1,54 @@
+Looking for file 'adult.data' in the current directory...
+File found in current directory..
+Looking for file 'adult.test' in the current directory...
+File found in current directory..
+Loading only 10000 examples from the data
+Total data points: 10000
+# non-protected examples: 6754
+# protected examples: 3246
+Non-protected in positive class: 2080 (31%)
+Protected in positive class: 372 (11%)
+P-rule is: 37%
+iter:  10   lambda:  1   alpha:  0.5   kernel: rbf, method:  cobyla
+[0.62230064 0.16969394 0.64710854 ... 0.13785812 0.61671567 0.53923458]
+loss:  910.7612513365544
+loss:  910.5146603156919
+loss:  910.264981719186
+loss:  910.0191902559765
+loss:  909.7697142952132
+loss:  909.5204259625265
+loss:  909.2711384222831
+loss:  909.0212401444286
+loss:  908.7707912656919
+loss:  908.521165183762
+weights:  [1.00004612e+00 1.00015463e+00 1.00021993e+00 ... 5.61520195e-05
+ 7.17752571e-04 3.05347832e-04]
+Optimization problem did not converge.. Check the solution returned by the optimizer.
+Returned solution is:
+     fun: 908.521165183762
+   maxcv: 6.9054393960433345
+ message: 'Did not converge to a solution satisfying the constraints. See `maxcv` for magnitude of violation.'
+    nfev: 10
+  status: 4
+ success: False
+       x: array([1.00004612e+00, 1.00015463e+00, 1.00021993e+00, ...,
+       5.61520195e-05, 7.17752571e-04, 3.05347832e-04])
+Train data:
+------------
+Train accuracy :  0.3444285714285714
+Total data points: 7000
+# non-protected examples: 4699
+# protected examples: 2301
+Non-protected in positive class: 4182 (89%)
+Protected in positive class: 2042 (89%)
+P-rule is: 100%
+
+Test data: 
+------------
+Test accuracy :  0.342
+Total data points: 3000
+# non-protected examples: 2055
+# protected examples: 945
+Non-protected in positive class: 1854 (90%)
+Protected in positive class: 837 (89%)
+P-rule is: 98%
