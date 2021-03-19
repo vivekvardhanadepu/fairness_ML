@@ -2,6 +2,7 @@ import numpy as np
 from loss_wrapper import loss_wrapper
 from random import seed
 from scipy.optimize import minimize, LinearConstraint
+from scipy.optimize import _cobyla
 
 SEED = 1122334455
 seed(SEED) # set the random seed so that the random permutations can be reproduced again
@@ -45,6 +46,9 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 1000
     c: the learned weight vector for the classifier
 
     """
+    _cobyla.minimize(get_one_hot_encoding, m=x, x=np.zeros(4, np.float64), rhobeg=2.5,
+                                  rhoend=3.5, iprint=1, maxfun=20,
+                                  dinfo=np.zeros(4, np.float64))
 
     n = x.shape[0]
     x_init = np.random.rand(n, )*initiator
