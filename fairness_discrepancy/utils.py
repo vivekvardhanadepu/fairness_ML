@@ -8,8 +8,7 @@ SEED = 1122334455
 seed(SEED) # set the random seed so that the random permutations can be reproduced again
 np.random.seed(SEED)
 
-def rbf_kernel(x1, x2):
-    gamma = 0.5
+def rbf_kernel(x1, x2, gamma = 0.0001):
     return np.exp(-1*gamma*np.linalg.norm(x1-x2, axis=1)**2)
 
 
@@ -46,9 +45,9 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 1000
     c: the learned weight vector for the classifier
 
     """
-    _cobyla.minimize(get_one_hot_encoding, m=x, x=np.zeros(4, np.float64), rhobeg=2.5,
-                                  rhoend=3.5, iprint=1, maxfun=20,
-                                  dinfo=np.zeros(4, np.float64))
+#     _cobyla.minimize(get_one_hot_encoding, m=x, x=np.zeros(4, np.float64), rhobeg=2.5,
+#                                   rhoend=3.5, iprint=1, maxfun=20,
+#                                   dinfo=np.zeros(4, np.float64))
 
     n = x.shape[0]
     x_init = np.random.rand(n, )*initiator
@@ -56,8 +55,16 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 1000
             " method: ", method, ", catol: ", catol, "batches: ", batches)
     print("x_init: ", x_init)
     c = x_init
-    K = rbf_kernel
-    f_args=(x, y, x_control, alpha, K, sensitive_attrs)
+    
+    kernel = rbf_kernel
+    kernel_values = []
+    
+    for i in range(x.shape[0]):
+        kernel_values.append(np.squeeze(kernel(x[i], x)))
+        
+    kernel_matrix  = np.array(kernel_values)
+    
+    f_args=(x, y, x_control, alpha, kernel, kernel_matrix, sensitive_attrs)
     kernel_obj = loss_wrapper(loss_function)
     constraints = []
 
