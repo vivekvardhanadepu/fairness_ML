@@ -1,38 +1,35 @@
+# from joblib import parallel
 import numpy as np
+from sklearn.metrics.pairwise import rbf_kernel
 from loss_wrapper import loss_wrapper
 from random import seed
 from scipy.optimize import minimize, LinearConstraint
-from scipy.optimize import _cobyla
+from numba import jit
 
 SEED = 1122334455
 seed(SEED) # set the random seed so that the random permutations can be reproduced again
 np.random.seed(SEED)
 
-def rbf_kernel(x1, x2, gamma = 0.0001):
-    return np.exp(-1*gamma*np.linalg.norm(x1-x2, axis=1)**2)
+# @jit(nopython=True, parallel=True)
+# def rbf_kernel(x1, x2, gamma = 0.0001):
+#     return np.exp(-1*gamma*np.linalg.norm(x1-x2, axis=1)**2)
 
+# @jit(nopython=True, parallel=True)
+# def calcKernelMatrix(x, kernel, n):
+#     kernel_values = []
+#     for i in range(n):
+#         kernel_values.append(np.squeeze(kernel(x[i], x)))
+#     return kernel_values
 
-# def rbf_kernel_optimized(x1, x2):
-#     arr = np.array((x1.shape[0], x2.shape[0]))
-#     arr = []
-#     for i in range(x1.shape[0]):
-#         arr.append(np.squeeze(rbf_kernel(x1[i], x2)))
-#     return np.array(arr)
-
-def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 1000, 
-                    alpha=0.5, l=1, method='cobyla', initiator=0.0001, catol=0.1,
-                        batches=100):
+# @jit(nopython=True, parallel=True)
+def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 10, 
+                    alpha=0.5, l=1, method='cobyla', initiator=0.0001, catol=0.1, learning_rate=0.05):
 
     """
 
-    Function that trains the model with fairness constraints.
-    Example usage in: "synthetic_data_demo/decision_boundary_demo.py"
-
-    ----
-
     Inputs:
 
-    X: (n) x (d+1) numpy array -- n = number of examples, d = number of features, one feature is the intercept
+    X: (n) x (d+1) numpy array -- n = number of examples, d = number of features
     y: 1-d numpy array (n entries)
     x_control: dictionary of the type {"s": [...]}, key "s" is the sensitive feature name, and the value is a 1-d list with n elements holding the sensitive feature values
     loss_function: the loss function that we want to optimize -- for now we have implementation of logistic loss, but other functions like hinge loss can also be added
@@ -50,71 +47,78 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 1000
 #                                   dinfo=np.zeros(4, np.float64))
 
     n = x.shape[0]
-    x_init = np.random.rand(n, )*initiator
-    print("iter: ", max_iter, ", lambda: ", l, ", alpha: ", alpha, ", kernel: rbf"\
-            " method: ", method, ", catol: ", catol, "batches: ", batches)
-    print("x_init: ", x_init)
-    c = x_init
-    
+    c_init = np.random.rand(n, )*initiator
     kernel = rbf_kernel
-    kernel_values = []
-    
-    for i in range(x.shape[0]):
-        kernel_values.append(np.squeeze(kernel(x[i], x)))
+    print("iter: ", max_iter, ", lambda: ", l, ", alpha: ", alpha, ", kernel: rbf"\
+            " method: ", method, ", catol: ", catol)
+    print("c_init: ", c_init)
         
-    kernel_matrix  = np.array(kernel_values)
+    # kernel_matrix  = np.array(calcKernelMatrix(x, kernel, n))
+    kernel_matrix = kernel(x, x, gamma=1/n)
     
-    f_args=(x, y, x_control, alpha, kernel, kernel_matrix, sensitive_attrs)
+    loss_func_args=(x, y, x_control, alpha, kernel_matrix, sensitive_attrs)
     kernel_obj = loss_wrapper(loss_function)
-    constraints = []
-
-    def lambda_contraint(c, i, n, l):
-        return c[i]-(1/(2*n*l))
     
-    def non_neg_constraint(c, i):
-        return -1*c[i]
-    
-    def dot_y_constraint(c, y, tol):
-        return np.dot(c, y) - tol
+    if method in ['cobyla', 'slsqp']:
+        # constraints = []
 
-    def dot_y_constraint_neg(c, y, tol):
-        return -tol -np.dot(c, y)
+        # def lambda_contraint(c, i, n, l):
+        #     return c[i]-(1/(2*n*l))
+        
+        # def non_neg_constraint(c, i):
+        #     return -1*c[i]
+        
+        # def dot_y_constraint(c, y, tol):
+        #     return np.dot(c, y) - tol
 
-    for i in range(n):
-        c1 = ({'type': 'ineq', 'fun': lambda_contraint, 'args':(i, n, l)})
-        c2 = ({'type': 'ineq', 'fun': non_neg_constraint, 'args': (i,)})
-        constraints.append(c1)
-        constraints.append(c2)
+        # def dot_y_constraint_neg(c, y, tol):
+        #     return -tol -np.dot(c, y)
 
-    c3 = ({'type': 'ineq', 'fun': dot_y_constraint, 'args': (y, catol)})
-    c4 = ({'type': 'ineq', 'fun': dot_y_constraint_neg, 'args': (y, catol)})
-    constraints.append(c3)
-    constraints.append(c4)
+        # for i in range(n):
+        #     c1 = ({'type': 'ineq', 'fun': lambda_contraint, 'args':(i, n, l)})
+        #     c2 = ({'type': 'ineq', 'fun': non_neg_constraint, 'args': (i,)})
+        #     constraints.append(c1)
+        #     constraints.append(c2)
 
-    #constraints.append(LinearConstraint(y, lb=0.1, ub=0.1))
-    c = minimize(fun = kernel_obj.simulate,
-        x0 = c,
-        args = f_args,
-        method = method,
-        options = {"maxiter":max_iter},
-        #bounds = [(0, 1/(2*n*l)) for i in range(n)]
-        constraints = constraints
-        )
-    
-    print
-    print("weights: ", c.x)
-    print("cy dot constraint :", np.dot(c.x,y))
-    print
-    
-    try:
-        assert(c.success == True)
-    except:
-        print("Optimization problem did not converge.. Check the solution returned by the optimizer.")
-        print("Returned solution is:")
-        print(c)
+        # c3 = ({'type': 'ineq', 'fun': dot_y_constraint, 'args': (y, catol)})
+        # c4 = ({'type': 'ineq', 'fun': dot_y_constraint_neg, 'args': (y, catol)})
+        # constraints.append(c3)
+        # constraints.append(c4)
+
+        #constraints.append(LinearConstraint(y, lb=0.1, ub=0.1))
+        c = minimize(fun = kernel_obj.simulate,
+            x0 = c_init,
+            args = loss_func_args,
+            method = method,
+            options = {"maxiter":max_iter}
+            #bounds = [(0, 1/(2*n*l)) for i in range(n)]
+            # constraints = constraints
+            )
+        
         print
+        print("weights: ", c.x)
+        print("cy dot constraint :", np.dot(c.x,y))
+        print
+        
+        if(c.success != True):
+            print("Optimization problem did not converge.. Check the solution returned by the optimizer.")
+            print("Returned solution is:")
+            print(c)
+            print
 
-    return c, kernel_obj.values['c'], kernel_obj.values['losses']
+        # try:
+        #     assert(c.success == True)
+        # except:
+        #     print("Optimization problem did not converge.. Check the solution returned by the optimizer.")
+        #     print("Returned solution is:")
+        #     print(c)
+        #     print
+
+        c = c.x
+    elif method == 'SGD':
+        pass
+
+    return c, kernel_obj.values['c'], kernel_obj.values['losses'], kernel_matrix
 
 def compute_p_rule(x_control, class_labels):
 
@@ -188,43 +192,50 @@ def split_into_train_test(x_all, y_all, x_control_all, train_fold_size):
 
     return x_all_train, y_all_train, x_control_all_train, x_all_test, y_all_test, x_control_all_test
 
-def predict(model, x_train, y_train, x_test):
+# @jit(nopython=True, parallel=True)
+def predict(c, x_train, y_train, x_test, kernel_matrix):
 
     K = rbf_kernel
     n = x_train.shape[0]
-    m = x_test.shape[0]
-    y_train_predicted = []
-    y_test_predicted = []
+    # m = x_test.shape[0]
+    # y_train_predicted = np.array((1,n))
+    # y_test_predicted = np.array((1,m))
 
     # using 0th element to get b
     # b = 0.0
     # for i in range(n):
     #     b += model[i]*y_train[i]*K(x_train[0], x_train[i])
-    b = np.dot(model*y_train, np.squeeze(K(x_train[0], x_train)))
-    b -= y_train[0]
+    # b = np.dot(model*y_train, np.squeeze(K(x_train[0], x_train)))
+    # b -= y_train[0]
+    temp_matrix = (c*y_train).T @ kernel_matrix
+    b = (temp_matrix.sum() - y_train.sum())/n
     
-    for j in range(n):
-        temp = 0.0
-        # for i in range(n):
-        #     temp+= model[i]*y_train[i]*K(x_train[j], x_train[i])
-        temp = np.dot(model*y_train, K(x_train[j], x_train))
-        temp -= b
-        y_train_predicted.append(np.sign(temp))
+    # for j in range(n):
+    #     temp = 0.0
+    #     # for i in range(n):
+    #     #     temp+= model[i]*y_train[i]*K(x_train[j], x_train[i])
+    #     temp = np.dot(c*y_train, K(x_train[j], x_train))
+    #     temp -= b
+    #     y_train_predicted.append(np.sign(temp))
 
-    for j in range(m):
-        temp = 0.0
-        # for i in range(n):
-        #     temp+= model[i]*y_train[i]*K(x_test[j], x_train[i])
-        temp = np.dot(model*y_train, K(x_test[j], x_train))
-        temp -= b
-        y_test_predicted.append(np.sign(temp))
+    # for j in range(m):
+    #     temp = 0.0
+    #     # for i in range(n):
+    #     #     temp+= model[i]*y_train[i]*K(x_test[j], x_train[i])
+    #     temp = np.dot(c*y_train, K(x_test[j], x_train))
+    #     temp -= b
+    #     y_test_predicted.append(np.sign(temp))
 
-    y_test_predicted = np.array(y_test_predicted)
-    y_train_predicted = np.array(y_train_predicted)
+    # y_test_predicted = np.array(y_test_predicted)
+    # y_train_predicted = np.array(y_train_predicted)
+    y_train_predicted = np.sign(((c*y_train).T @ kernel_matrix) - b)
+    print(y_train_predicted.shape)
+    y_test_predicted = np.sign(((c*y_train).T @ K(x_train, x_test, gamma=1/n)) - b)
+    print(y_test_predicted.shape)
 
     return y_train_predicted, y_test_predicted
 
-def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y_test_predicted):
+def check_accuracy(model, kernel_matrix, x_train, y_train, x_test, y_test, y_train_predicted, y_test_predicted):
 
 
     """
@@ -238,14 +249,16 @@ def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y
 
     # subtract b
     if model is not None:
-        y_train_predicted, y_test_predicted = predict(model, x_train, y_train, x_test)
+        y_train_predicted, y_test_predicted = predict(model, x_train, y_train, x_test, kernel_matrix)
 
     def get_accuracy(y, Y_predicted):
-        correct_answers = (Y_predicted == y).astype(int) # will have 1 when the prediction and the actual label match
-        accuracy = float(sum(correct_answers)) / float(len(correct_answers))
+        correct_answers = (Y_predicted == y) # will have 1 when the prediction and the actual label match
+        print(correct_answers)
+        accuracy = float(correct_answers.sum()) / float(len(y))
         return accuracy, sum(correct_answers)
 
-    train_score, correct_answers_train = get_accuracy(y_train, y_train_predicted)
-    test_score, correct_answers_test = get_accuracy(y_test, y_test_predicted)
+
+    train_score, correct_answers_train = get_accuracy(np.array(y_train), y_train_predicted)
+    test_score, correct_answers_test = get_accuracy(np.array(y_test), y_test_predicted)
 
     return train_score, test_score, correct_answers_train, correct_answers_test

@@ -1,0 +1,37 @@
+Looking for file 'adult.data' in the current directory...
+File found in current directory..
+Looking for file 'adult.test' in the current directory...
+File found in current directory..
+Loading only 10000 examples from the data
+Total data points: 10000
+# non-protected examples: 6754
+# protected examples: 3246
+Non-protected in positive class: 2080 (31%)
+Protected in positive class: 372 (11%)
+P-rule is: 37%
+iter:  10 , lambda:  1 , alpha:  0.5 , kernel: rbf method:  cobyla , catol:  0.1
+c_init:  [6.22300636e-05 1.69693936e-05 6.47108542e-05 ... 1.37858120e-05
+ 6.16715669e-05 5.39234585e-05]
+loss:  1110.0394285635207
+loss:  1047.4097184717687
+loss:  975.7005169862882
+loss:  823.8351190751871
+loss:  798.2451105306092
+loss:  697.8619771291932
+loss:  706.8400094507759
+loss:  689.6038926292234
+loss:  674.5040178681612
+loss:  674.1941271421088
+weights:  [1.00006223e+00 1.00001697e+00 1.00006471e+00 ... 1.37858120e-05
+ 6.16715669e-05 5.39234585e-05]
+cy dot constraint : -4.18077131440451
+Optimization problem did not converge.. Check the solution returned by the optimizer.
+Returned solution is:
+     fun: 674.1941271421088
+   maxcv: 4.28077131440451
+ message: 'Did not converge to a solution satisfying the constraints. See `maxcv` for magnitude of violation.'
+    nfev: 10
+  status: 4
+ success: False
+       x: array([1.00006223e+00, 1.00001697e+00, 1.00006471e+00, ...,
+       1.37858120e-05, 6.16715669e-05, 5.39234585e-05])

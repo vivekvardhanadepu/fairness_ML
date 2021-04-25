@@ -1,38 +1,41 @@
 import numpy as np
+from numba import jit
 
-def discrepancy_loss(c, x, y, x_control, alpha, K, sensitive_attrs):
-	svm_loss = 0.0
-	coloring_loss = 0.0
-	# assert no of samples
-	# for i in range(x.shape[0]):
-	# 	for j in range(y.shape[0]):
-	# 		svm_loss += 0.5*y[i]*y[j]*c[i]*c[j]*K(x[i],x[j])
-	kernel_values = []
+# @jit(nopython=True, parallel=True)
+def discrepancy_loss(c, x, y, x_control, alpha, kernel_matrix, sensitive_attrs):
+    svm_loss = 0.0
+    coloring_loss = 0.0
+    # assert no of samples
+    temp_matrix = (c*y).T @ kernel_matrix
+    svm_loss = .5*np.dot(temp_matrix, c*y)
+    svm_loss -= c.sum()
 
-	for i in range(x.shape[0]):
-		kernel_values.append(np.squeeze(K(x[i], x)))
-	
-	kernel_values  = np.array(kernel_values)
-	svm_loss = .5*np.dot((c*y).T @ kernel_values, c*y)
-	svm_loss -= c.sum()
+    b = (temp_matrix.sum() - y.sum())/x.shape[0]
 
-	for attr in sensitive_attrs:
-		if(attr=="sex"):
-			cond = x_control[attr] == 1.0
-			male_y = y[cond]	
-			female_y = y[~cond]
-			male_loss  = male_y.sum()
-			female_loss = female_y.sum()
+    for attr in sensitive_attrs:
+        if(attr=="sex"):
+            cond = x_control[attr] == 1.0
+            # male_y = y[cond]	
+            # female_y = y[~cond]
+            male_kernel_matrix = kernel_matrix[cond]
+            female_kernel_matrix = kernel_matrix[~cond]
+            male_loss  = 0.0
+            female_loss = 0.0
 
-			# for i in range(male_x.shape[1]):
-			# 	temp=0.0
-			# 	for j in range(x.shape[1]):
-			# 		temp+= c[j]*y[j]*K(x[j], male_x[i])
-			# 	temp-=b
-			# 	male_loss += np.tanh(temp)
+            male_loss = np.tanh(((c*y).T @ male_kernel_matrix.T) - b).sum()
+            female_loss = np.tanh(((c*y).T @ female_kernel_matrix.T) - b).sum()
+            # for i in range(male_kernel_matrix.shape[0]):
+            #     temp = np.dot(c*y, male_kernel_matrix[i]) - b
+            #     male_loss += np.tanh(temp)
+                
+            # for i in range(female_kernel_matrix.shape[0]):
+            #     temp = np.dot(c*y, female_kernel_matrix[i]) - b
+            #     female_loss += np.tanh(temp)
+                
+            coloring_loss = max(abs(male_loss), abs(female_loss))
 
-			coloring_loss = max(abs(male_loss), abs(female_loss))
-
-	loss = (1-alpha)*svm_loss + alpha*coloring_loss
-	print("loss: ", loss)
-	return loss	
+    loss = (1-alpha)*svm_loss + alpha*coloring_loss
+    print("alpha: ", alpha)
+    print("c: ", c)
+    print("loss: ", loss)
+    return loss	

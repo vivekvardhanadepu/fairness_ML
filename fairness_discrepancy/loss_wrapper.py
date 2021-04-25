@@ -5,8 +5,9 @@ class loss_wrapper:
         self.values = {'c':[], 'losses':[]} # storing c's and losses
     
     def simulate(self, x, *args):
-        loss = self.f(x, *args)
         self.values['c'].append(x)
+        loss = self.f(x, *args)
+        # self.values['c'].append(x)
         self.values['losses'].append(loss)
         self.num_calls += 1
         return loss

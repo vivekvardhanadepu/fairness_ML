@@ -19,9 +19,11 @@ def test_adult_data():
 	sensitive_attrs = ["sex"]
 
 	def train_test_classifier():
-		final_c, Cs, losses = ut.train_model(x_train, y_train, x_control_train, loss_function, sensitive_attrs)
-		y_train_predicted, y_test_predicted = ut.predict(final_c.x, x_train, y_train, x_test)
-		train_score, test_score, correct_answers_train, correct_answers_test = ut.check_accuracy(None, x_train, y_train, x_test, y_test, y_train_predicted, y_test_predicted)
+		final_c, Cs, losses, kernel_matrix = ut.train_model(x_train, y_train, x_control_train, loss_function, sensitive_attrs)
+		y_train_predicted, y_test_predicted = ut.predict(final_c, x_train, y_train, x_test, kernel_matrix)
+		train_score, test_score, correct_answers_train, correct_answers_test = \
+						ut.check_accuracy(None, kernel_matrix, x_train, y_train, x_test, y_test, \
+											y_train_predicted, y_test_predicted)
 		print("Train data:")
 		print("------------")
 		print("Train accuracy : ", train_score)
