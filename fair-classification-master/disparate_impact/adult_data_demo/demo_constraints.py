@@ -11,7 +11,7 @@ def test_adult_data():
 	
 
 	""" Load the adult data """
-	X, y, x_control = load_adult_data(load_data_size=10000) # set the argument to none, or no arguments if you want to test with the whole data -- we are subsampling for performance speedup
+	X, y, x_control = load_adult_data(load_data_size=45222) # set the argument to none, or no arguments if you want to test with the whole data -- we are subsampling for performance speedup
 	ut.compute_p_rule(x_control["sex"], y) # compute the p-rule in the original data
 
 
@@ -28,19 +28,23 @@ def test_adult_data():
 	apply_accuracy_constraint = None
 	sep_constraint = None
 
-	loss_function = lf._logistic_loss
+	#loss_function = lf._logistic_loss
+	loss_function = lf._logistic_loss_l2_reg
 	sensitive_attrs = ["sex"]
 	sensitive_attrs_to_cov_thresh = {}
 	gamma = None
 
 	def train_test_classifier():
 		w = ut.train_model(x_train, y_train, x_control_train, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, sensitive_attrs, sensitive_attrs_to_cov_thresh, gamma)
-		train_score, test_score, correct_answers_train, correct_answers_test = ut.check_accuracy(w, x_train, y_train, x_test, y_test, None, None)
+		train_score, test_score, correct_answers_train, correct_answers_test, y_train_predicted, y_test_predicted = ut.check_accuracy(w, x_train, y_train, x_test, y_test, None, None)
 		distances_boundary_test = (np.dot(x_test, w)).tolist()
 		all_class_labels_assigned_test = np.sign(distances_boundary_test)
 		correlation_dict_test = ut.get_correlations(None, None, all_class_labels_assigned_test, x_control_test, sensitive_attrs)
 		cov_dict_test = ut.print_covariance_sensitive_attrs(None, x_test, distances_boundary_test, x_control_test, sensitive_attrs)
 		p_rule = ut.print_classifier_fairness_stats([test_score], [correlation_dict_test], [cov_dict_test], sensitive_attrs[0])	
+		print("----Training--------")
+		print("Train accuracy: ", train_score)
+		ut.compute_p_rule(x_control_train["sex"], y_train_predicted)
 		return w, p_rule, test_score
 
 

@@ -27,12 +27,12 @@ def test_adult_data():
 		print("Train data:")
 		print("------------")
 		print("Train accuracy : ", train_score)
-		p_rule_train = ut.compute_p_rule(x_control_train["sex"], y_train_predicted)
+		p_rule_train, frac_non_prot_pos_train, frac_prot_pos_train = ut.compute_p_rule(x_control_train["sex"], y_train_predicted)
 		print()
 		print("Test data: ")
 		print("------------")
 		print("Test accuracy : ", test_score)
-		p_rule_test = ut.compute_p_rule(x_control_test["sex"], y_test_predicted)
+		p_rule_test, frac_non_prot_pos_test, frac_prot_pos_test = ut.compute_p_rule(x_control_test["sex"], y_test_predicted)
 		print
 		print(losses)
 		# return w, p_rule_train, p_rule_test

@@ -1,0 +1,65 @@
+Looking for file 'adult.data' in the current directory...
+'adult.data' not found! Downloading from UCI Archive...
+'adult.data' download and saved locally..
+Looking for file 'adult.test' in the current directory...
+'adult.test' not found! Downloading from UCI Archive...
+'adult.test' download and saved locally..
+Loading only 13913 examples from the data
+Total data points: 13913
+# non-protected examples: 9413
+# protected examples: 4500
+Non-protected in positive class: 2867 (30%)
+Protected in positive class: 513 (11%)
+P-rule is: 37%
+== Unconstrained (original) classifier ==
+Accuracy: 0.85
+Protected/non-protected in +ve class: 9% / 24%
+P-rule achieved: 37%
+Covariance between sensitive feature and decision from distance boundary : 0.365
+----Training--------
+Train accuracy:  0.8496765581681898
+Total data points: 9739
+# non-protected examples: 6583
+# protected examples: 3156
+Non-protected in positive class: 1721 (26%)
+Protected in positive class: 285 (9%)
+P-rule is: 35%
+== Classifier with fairness constraint ==
+Accuracy: 0.83
+Protected/non-protected in +ve class: 16% / 16%
+P-rule achieved: 96%
+Covariance between sensitive feature and decision from distance boundary : 0.001
+----Training--------
+Train accuracy:  0.8364308450559605
+Total data points: 9739
+# non-protected examples: 6583
+# protected examples: 3156
+Non-protected in positive class: 1261 (19%)
+Protected in positive class: 458 (15%)
+P-rule is: 76%
+== Classifier with accuracy constraint ==
+Accuracy: 0.85
+Protected/non-protected in +ve class: 9% / 24%
+P-rule achieved: 37%
+Covariance between sensitive feature and decision from distance boundary : 0.365
+----Training--------
+Train accuracy:  0.8496765581681898
+Total data points: 9739
+# non-protected examples: 6583
+# protected examples: 3156
+Non-protected in positive class: 1721 (26%)
+Protected in positive class: 285 (9%)
+P-rule is: 35%
+== Classifier with accuracy constraint (no +ve misclassification) ==
+Accuracy: 0.85
+Protected/non-protected in +ve class: 9% / 24%
+P-rule achieved: 37%
+Covariance between sensitive feature and decision from distance boundary : 0.365
+----Training--------
+Train accuracy:  0.8496765581681898
+Total data points: 9739
+# non-protected examples: 6583
+# protected examples: 3156
+Non-protected in positive class: 1721 (26%)
+Protected in positive class: 285 (9%)
+P-rule is: 35%

@@ -1,0 +1,98 @@
+Looking for file 'adult.data' in the current directory...
+File found in current directory..
+Looking for file 'adult.test' in the current directory...
+File found in current directory..
+Loading only 37394 examples from the data
+Total data points: 37394
+# non-protected examples: 25236
+# protected examples: 12158
+Non-protected in positive class: 7863 (31%)
+Protected in positive class: 1388 (11%)
+P-rule is: 37%
+== Unconstrained (original) classifier ==
+Accuracy: 0.84
+Protected/non-protected in +ve class: 9% / 26%
+P-rule achieved: 32%
+Covariance between sensitive feature and decision from distance boundary : 0.377
+----Training--------
+Train accuracy:  0.8484489608801956
+Total data points: 26176
+# non-protected examples: 17716
+# protected examples: 8460
+Non-protected in positive class: 4545 (26%)
+Protected in positive class: 707 (8%)
+P-rule is: 33%
+== Classifier with fairness constraint ==
+Optimization problem did not converge.. Check the solution returned by the optimizer.
+Returned solution is:
+     fun: 9930.907600948554
+     jac: array([ 1.29716797e+01, -6.84918043e+04, -3.39433301e+03,  3.14288208e+02,
+        1.54125977e+00, -8.30897827e+02,  1.74620361e+01,  3.20722412e+02,
+        7.21638184e+01,  1.17693359e+02, -1.08944617e+03,  3.05907837e+02,
+        3.40689697e+01,  1.34083984e+02,  3.74282471e+02,  2.54068848e+02,
+       -1.05038508e+04,  2.12337646e+01,  2.10899658e+01,  7.92102051e+00,
+       -2.51099854e+01, -1.36586914e+01, -4.05423584e+01,  8.64831543e+00,
+       -2.69339600e+01,  9.84804688e+01,  2.40136719e+00, -1.93239746e+01,
+        3.59266724e+02, -7.09716797e-01, -2.99403931e+02, -3.32810059e+01,
+       -7.07539062e+01, -8.11635742e+01, -3.16250000e+01,  1.99146973e+02,
+        2.35697021e+01,  4.27148438e+01, -3.20400391e+01,  3.09769287e+01,
+        1.59538574e+01, -1.09684937e+02, -1.17018508e+06, -3.65979004e+00,
+        5.30140381e+01,  1.12736450e+02, -5.80240479e+01, -1.12877319e+02,
+        2.16453857e+01,  1.40991211e-01,  9.69199219e+01])
+ message: 'Positive directional derivative for linesearch'
+    nfev: 4567
+     nit: 88
+    njev: 84
+  status: 8
+ success: False
+       x: array([-3.72367242e+00,  5.45519072e-04,  2.14912283e-02, -9.23050256e-01,
+        1.78546107e-01,  1.31773862e-01, -6.57877163e-01, -1.31036826e+00,
+       -7.48213758e-01, -3.92755697e-01, -8.54764889e-01, -9.66598015e-01,
+       -1.20531820e+00, -1.20764510e+00, -4.09450393e-01,  9.14479844e-01,
+        1.66802781e-02,  3.32164470e-01, -5.04973887e-01, -3.05555655e-01,
+       -2.97236100e-01, -2.71136413e-01, -4.20616927e-01, -1.66266210e-01,
+        1.64850586e-02, -1.97935823e-01, -5.81700695e-01, -9.93925314e-01,
+        4.77888802e-01,  1.83087625e-01, -4.77025234e-01,  6.94672612e-01,
+       -1.81167657e+00, -4.26827741e+00, -5.43638069e-01, -8.08422087e-03,
+        1.13518925e+00,  5.09165634e-01,  1.75585722e-01,  3.10729416e-01,
+        5.38853004e-01, -6.44270704e-01,  2.10570478e-04, -6.85969671e-02,
+       -4.01034482e-01, -2.80876535e-01, -2.64123066e-01, -8.83676467e-01,
+       -7.30999252e-01, -1.08997087e+00,  2.09639009e-01])
+Accuracy: 0.83
+Protected/non-protected in +ve class: 15% / 19%
+P-rule achieved: 79%
+Covariance between sensitive feature and decision from distance boundary : 0.012
+----Training--------
+Train accuracy:  0.835192542787286
+Total data points: 26176
+# non-protected examples: 17716
+# protected examples: 8460
+Non-protected in positive class: 3335 (19%)
+Protected in positive class: 1260 (15%)
+P-rule is: 79%
+== Classifier with accuracy constraint ==
+Accuracy: 0.84
+Protected/non-protected in +ve class: 9% / 26%
+P-rule achieved: 32%
+Covariance between sensitive feature and decision from distance boundary : 0.377
+----Training--------
+Train accuracy:  0.8484489608801956
+Total data points: 26176
+# non-protected examples: 17716
+# protected examples: 8460
+Non-protected in positive class: 4545 (26%)
+Protected in positive class: 707 (8%)
+P-rule is: 33%
+== Classifier with accuracy constraint (no +ve misclassification) ==
+Accuracy: 0.84
+Protected/non-protected in +ve class: 9% / 26%
+P-rule achieved: 32%
+Covariance between sensitive feature and decision from distance boundary : 0.377
+----Training--------
+Train accuracy:  0.8484489608801956
+Total data points: 26176
+# non-protected examples: 17716
+# protected examples: 8460
+Non-protected in positive class: 4545 (26%)
+Protected in positive class: 707 (8%)
+P-rule is: 33%

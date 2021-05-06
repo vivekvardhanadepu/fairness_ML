@@ -34,8 +34,8 @@ def discrepancy_loss(c, x, y, x_control, alpha, kernel_matrix, sensitive_attrs):
                 
             coloring_loss = max(abs(male_loss), abs(female_loss))
 
-    loss = (1-alpha)*svm_loss + alpha*coloring_loss
-    print("alpha: ", alpha)
-    print("c: ", c)
+    loss = (1-alpha)*abs(svm_loss) + alpha*coloring_loss
+    # print("alpha: ", alpha)
+    # print("c: ", c)
     print("loss: ", loss)
     return loss	

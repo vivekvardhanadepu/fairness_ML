@@ -71,61 +71,69 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
             )
 
     else:
-
-        # train on just the loss function
+        f_args=(x, y)
         w = minimize(fun = loss_function,
             x0 = np.random.rand(x.shape[1],),
-            args = (x, y),
+            args = f_args,
             method = 'SLSQP',
-            options = {"maxiter":max_iter},
+            options = {"maxiter":100000},
             constraints = []
             )
 
-        old_w = deepcopy(w.x)
+        # train on just the loss function
+        # w = minimize(fun = loss_function,
+        #     x0 = np.random.rand(x.shape[1],),
+        #     args = (x, y),
+        #     method = 'SLSQP',
+        #     options = {"maxiter":max_iter},
+        #     constraints = []
+        #     )
+
+        # old_w = deepcopy(w.x)
         
 
-        def constraint_gamma_all(w, x, y,  initial_loss_arr):
+        # def constraint_gamma_all(w, x, y,  initial_loss_arr):
             
-            gamma_arr = np.ones_like(y) * gamma # set gamma for everyone
-            new_loss = loss_function(w, x, y)
-            old_loss = sum(initial_loss_arr)
-            return ((1.0 + gamma) * old_loss) - new_loss
+        #     gamma_arr = np.ones_like(y) * gamma # set gamma for everyone
+        #     new_loss = loss_function(w, x, y)
+        #     old_loss = sum(initial_loss_arr)
+        #     return ((1.0 + gamma) * old_loss) - new_loss
 
-        def constraint_protected_people(w,x,y): # dont confuse the protected here with the sensitive feature protected/non-protected values -- protected here means that these points should not be misclassified to negative class
-            return np.dot(w, x.T) # if this is positive, the constraint is satisfied
-        def constraint_unprotected_people(w,ind,old_loss,x,y):
+        # def constraint_protected_people(w,x,y): # dont confuse the protected here with the sensitive feature protected/non-protected values -- protected here means that these points should not be misclassified to negative class
+        #     return np.dot(w, x.T) # if this is positive, the constraint is satisfied
+        # def constraint_unprotected_people(w,ind,old_loss,x,y):
             
-            new_loss = loss_function(w, np.array([x]), np.array(y))
-            return ((1.0 + gamma) * old_loss) - new_loss
+        #     new_loss = loss_function(w, np.array([x]), np.array(y))
+        #     return ((1.0 + gamma) * old_loss) - new_loss
 
-        constraints = []
-        predicted_labels = np.sign(np.dot(w.x, x.T))
-        unconstrained_loss_arr = loss_function(w.x, x, y, return_arr=True)
+        # constraints = []
+        # predicted_labels = np.sign(np.dot(w.x, x.T))
+        # unconstrained_loss_arr = loss_function(w.x, x, y, return_arr=True)
 
-        if sep_constraint == True: # separate gemma for different people
-            for i in range(0, len(predicted_labels)):
-                if predicted_labels[i] == 1.0 and x_control[sensitive_attrs[0]][i] == 1.0: # for now we are assuming just one sensitive attr for reverse constraint, later, extend the code to take into account multiple sensitive attrs
-                    c = ({'type': 'ineq', 'fun': constraint_protected_people, 'args':(x[i], y[i])}) # this constraint makes sure that these people stay in the positive class even in the modified classifier             
-                    constraints.append(c)
-                else:
-                    c = ({'type': 'ineq', 'fun': constraint_unprotected_people, 'args':(i, unconstrained_loss_arr[i], x[i], y[i])})                
-                    constraints.append(c)
-        else: # same gamma for everyone
-            c = ({'type': 'ineq', 'fun': constraint_gamma_all, 'args':(x,y,unconstrained_loss_arr)})
-            constraints.append(c)
+        # if sep_constraint == True: # separate gemma for different people
+        #     for i in range(0, len(predicted_labels)):
+        #         if predicted_labels[i] == 1.0 and x_control[sensitive_attrs[0]][i] == 1.0: # for now we are assuming just one sensitive attr for reverse constraint, later, extend the code to take into account multiple sensitive attrs
+        #             c = ({'type': 'ineq', 'fun': constraint_protected_people, 'args':(x[i], y[i])}) # this constraint makes sure that these people stay in the positive class even in the modified classifier             
+        #             constraints.append(c)
+        #         else:
+        #             c = ({'type': 'ineq', 'fun': constraint_unprotected_people, 'args':(i, unconstrained_loss_arr[i], x[i], y[i])})                
+        #             constraints.append(c)
+        # else: # same gamma for everyone
+        #     c = ({'type': 'ineq', 'fun': constraint_gamma_all, 'args':(x,y,unconstrained_loss_arr)})
+        #     constraints.append(c)
 
-        def cross_cov_abs_optm_func(weight_vec, x_in, x_control_in_arr):
-            cross_cov = (x_control_in_arr - np.mean(x_control_in_arr)) * np.dot(weight_vec, x_in.T)
-            return float(abs(sum(cross_cov))) / float(x_in.shape[0])
+        # def cross_cov_abs_optm_func(weight_vec, x_in, x_control_in_arr):
+        #     cross_cov = (x_control_in_arr - np.mean(x_control_in_arr)) * np.dot(weight_vec, x_in.T)
+        #     return float(abs(sum(cross_cov))) / float(x_in.shape[0])
 
 
-        w = minimize(fun = cross_cov_abs_optm_func,
-            x0 = old_w,
-            args = (x, x_control[sensitive_attrs[0]]),
-            method = 'SLSQP',
-            options = {"maxiter":100000},
-            constraints = constraints
-            )
+        # w = minimize(fun = cross_cov_abs_optm_func,
+        #     x0 = old_w,
+        #     args = (x, x_control[sensitive_attrs[0]]),
+        #     method = 'SLSQP',
+        #     options = {"maxiter":100000},
+        #     constraints = constraints
+        #     )
 
     try:
         assert(w.success == True)
@@ -329,7 +337,7 @@ def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y
     if model is not None and y_test_predicted is not None:
         print("Either the model (w) or the predicted labels should be None")
         raise Exception("Either the model (w) or the predicted labels should be None")
-
+    
     if model is not None:
         y_test_predicted = np.sign(np.dot(x_test, model))
         y_train_predicted = np.sign(np.dot(x_train, model))
@@ -342,7 +350,7 @@ def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y
     train_score, correct_answers_train = get_accuracy(y_train, y_train_predicted)
     test_score, correct_answers_test = get_accuracy(y_test, y_test_predicted)
 
-    return train_score, test_score, correct_answers_train, correct_answers_test
+    return train_score, test_score, correct_answers_train, correct_answers_test, y_train_predicted, y_test_predicted 
 
 def test_sensitive_attr_constraint_cov(model, x_arr, y_arr_dist_boundary, x_control, thresh, verbose):
 

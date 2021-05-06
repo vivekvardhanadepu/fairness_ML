@@ -14,12 +14,11 @@ np.random.seed(SEED)
 # def rbf_kernel(x1, x2, gamma = 0.0001):
 #     return np.exp(-1*gamma*np.linalg.norm(x1-x2, axis=1)**2)
 
-# @jit(nopython=True, parallel=True)
-# def calcKernelMatrix(x, kernel, n):
-#     kernel_values = []
-#     for i in range(n):
-#         kernel_values.append(np.squeeze(kernel(x[i], x)))
-#     return kernel_values
+def SGD(c_init, learning_rate, max_iter, kernel_obj, loss_func_args):
+    for _ in range(learning_rate):
+        # c_init = 
+        pass
+
 
 # @jit(nopython=True, parallel=True)
 def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 10, 
@@ -47,10 +46,10 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 10,
 #                                   dinfo=np.zeros(4, np.float64))
 
     n = x.shape[0]
-    c_init = np.random.rand(n, )*initiator
+    c_init = np.random.rand(n,)*initiator
     kernel = rbf_kernel
     print("iter: ", max_iter, ", lambda: ", l, ", alpha: ", alpha, ", kernel: rbf"\
-            " method: ", method, ", catol: ", catol)
+            " method: ", method, ", catol: ", catol, ", initiator: ", initiator)
     print("c_init: ", c_init)
         
     # kernel_matrix  = np.array(calcKernelMatrix(x, kernel, n))
@@ -58,6 +57,7 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 10,
     
     loss_func_args=(x, y, x_control, alpha, kernel_matrix, sensitive_attrs)
     kernel_obj = loss_wrapper(loss_function)
+    c = c_init
     
     if method in ['cobyla', 'slsqp']:
         # constraints = []
@@ -116,31 +116,36 @@ def train_model(x, y, x_control, loss_function, sensitive_attrs, max_iter = 10,
 
         c = c.x
     elif method == 'SGD':
-        pass
+        c = SGD(c_init, learning_rate, max_iter, kernel_obj, loss_func_args)
 
     return c, kernel_obj.values['c'], kernel_obj.values['losses'], kernel_matrix
 
 def compute_p_rule(x_control, class_labels):
 
-    """ Compute the p-rule based on Doctrine of disparate impact """
+    p_rule, frac_non_prot_pos, frac_prot_pos = (np.inf, np.inf, np.inf)
+    try:
+        """ Compute the p-rule based on Doctrine of disparate impact """
 
-    non_prot_all = sum(x_control == 1.0) # non-protected group
-    prot_all = sum(x_control == 0.0) # protected group
-    non_prot_pos = sum(class_labels[x_control == 1.0] == 1.0) # non_protected in positive class
-    prot_pos = sum(class_labels[x_control == 0.0] == 1.0) # protected in positive class
-    frac_non_prot_pos = float(non_prot_pos) / float(non_prot_all)
-    frac_prot_pos = float(prot_pos) / float(prot_all)
-    p_rule = (frac_prot_pos / frac_non_prot_pos) * 100.0
-    print
-    print("Total data points: %d" % (len(x_control)))
-    print("# non-protected examples: %d" % (non_prot_all))
-    print("# protected examples: %d" % (prot_all))
-    print("Non-protected in positive class: %d (%0.0f%%)" % (non_prot_pos, frac_non_prot_pos * 100.0))
-    print("Protected in positive class: %d (%0.0f%%)" % (prot_pos, frac_prot_pos * 100.0))
-    # print("Non-protected in positive class: %d (%0.0f%%)" % (non_prot_pos, non_prot_pos * 100.0 / non_prot_all))
-    # print("Protected in positive class: %d (%0.0f%%)" % (prot_pos, prot_pos * 100.0 / prot_all))
-    print("P-rule is: %0.0f%%" % ( p_rule ))
-    return p_rule
+        non_prot_all = sum(x_control == 1.0) # non-protected group
+        prot_all = sum(x_control == 0.0) # protected group
+        non_prot_pos = sum(class_labels[x_control == 1.0] == 1.0) # non_protected in positive class
+        prot_pos = sum(class_labels[x_control == 0.0] == 1.0) # protected in positive class
+        frac_non_prot_pos = float(non_prot_pos) / float(non_prot_all)
+        frac_prot_pos = float(prot_pos) / float(prot_all)
+        p_rule = (frac_prot_pos / frac_non_prot_pos) * 100.0
+        print
+        print("Total data points: %d" % (len(x_control)))
+        print("# non-protected examples: %d" % (non_prot_all))
+        print("# protected examples: %d" % (prot_all))
+        print("Non-protected in positive class: %d (%0.0f%%)" % (non_prot_pos, frac_non_prot_pos * 100.0))
+        print("Protected in positive class: %d (%0.0f%%)" % (prot_pos, frac_prot_pos * 100.0))
+        # print("Non-protected in positive class: %d (%0.0f%%)" % (non_prot_pos, non_prot_pos * 100.0 / non_prot_all))
+        # print("Protected in positive class: %d (%0.0f%%)" % (prot_pos, prot_pos * 100.0 / prot_all))
+        print("P-rule is: %0.0f%%" % ( p_rule ))
+    except Exception as e:
+        print("error: ", e)
+    finally:    
+        return p_rule, frac_non_prot_pos, frac_prot_pos
     
 def get_one_hot_encoding(in_arr):
     """

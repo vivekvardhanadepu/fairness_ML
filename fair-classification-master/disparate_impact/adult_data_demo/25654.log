@@ -1,0 +1,63 @@
+Looking for file 'adult.data' in the current directory...
+File found in current directory..
+Looking for file 'adult.test' in the current directory...
+File found in current directory..
+Loading only 25654 examples from the data
+Total data points: 25654
+# non-protected examples: 17374
+# protected examples: 8280
+Non-protected in positive class: 5368 (31%)
+Protected in positive class: 965 (12%)
+P-rule is: 38%
+== Unconstrained (original) classifier ==
+Accuracy: 0.85
+Protected/non-protected in +ve class: 8% / 25%
+P-rule achieved: 33%
+Covariance between sensitive feature and decision from distance boundary : 0.368
+----Training--------
+Train accuracy:  0.84736607640049
+Total data points: 17958
+# non-protected examples: 12181
+# protected examples: 5777
+Non-protected in positive class: 3094 (25%)
+Protected in positive class: 489 (8%)
+P-rule is: 33%
+== Classifier with fairness constraint ==
+Accuracy: 0.84
+Protected/non-protected in +ve class: 15% / 19%
+P-rule achieved: 79%
+Covariance between sensitive feature and decision from distance boundary : 0.011
+----Training--------
+Train accuracy:  0.8352266399376322
+Total data points: 17958
+# non-protected examples: 12181
+# protected examples: 5777
+Non-protected in positive class: 2286 (19%)
+Protected in positive class: 835 (14%)
+P-rule is: 77%
+== Classifier with accuracy constraint ==
+Accuracy: 0.85
+Protected/non-protected in +ve class: 8% / 25%
+P-rule achieved: 33%
+Covariance between sensitive feature and decision from distance boundary : 0.368
+----Training--------
+Train accuracy:  0.84736607640049
+Total data points: 17958
+# non-protected examples: 12181
+# protected examples: 5777
+Non-protected in positive class: 3094 (25%)
+Protected in positive class: 489 (8%)
+P-rule is: 33%
+== Classifier with accuracy constraint (no +ve misclassification) ==
+Accuracy: 0.85
+Protected/non-protected in +ve class: 8% / 25%
+P-rule achieved: 33%
+Covariance between sensitive feature and decision from distance boundary : 0.368
+----Training--------
+Train accuracy:  0.84736607640049
+Total data points: 17958
+# non-protected examples: 12181
+# protected examples: 5777
+Non-protected in positive class: 3094 (25%)
+Protected in positive class: 489 (8%)
+P-rule is: 33%
