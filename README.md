@@ -6,5 +6,6 @@
 
 Muhammad Bilal Zafar, Isabel Valera, Manuel Gomez Rodriguez, Krishna P. Gummadi.  20th International Conference on Artificial Intelligence and Statistics (AISTATS), Fort Lauderdale, FL, April 2017.
 
+2. <a href="http://archive.ics.uci.edu/ml" target="_blank">UCI Machine Learning Repository</a>
 
-2. Dua, D. and  Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
+Dua, D. and  Graff, C. (2019) Irvine, CA: University of California, School of Information and Computer Science.
